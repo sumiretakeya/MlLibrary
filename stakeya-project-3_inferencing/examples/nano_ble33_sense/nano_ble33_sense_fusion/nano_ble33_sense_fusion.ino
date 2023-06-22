@@ -39,7 +39,7 @@ BLEByteCharacteristic pause("6995b940-b6f4-11eb-8529-0242ac130003", BLERead | BL
 
 BLEDevice central;
 
-enum sensor_status {
+enum sensor_status { //Unique to this code
     NOT_USED = -1,
     NOT_INIT,
     INIT,
@@ -47,7 +47,7 @@ enum sensor_status {
 };
 
 /** Struct to link sensor axis name to sensor value function */
-typedef struct{
+typedef struct{ //Unique to this code
     const char *name;
     float *value;
     uint8_t (*poll_sensor)(void);
@@ -123,7 +123,7 @@ void setup()
     /* Init serial */
     Serial.begin(115200);
     // comment out the below line to cancel the wait for USB connection (needed for native USB)
-    while (!Serial);
+    //while (!Serial);
     Serial.println("Edge Impulse Sensor Fusion Inference\r\n");
 
     /* Connect used sensors */
@@ -218,10 +218,10 @@ void loop()
     {
       return;
     }
-    delay(2000);
+    delay(3000);
 
-    if (central.connected()) exercise.writeValue(0); //ArmCircles - displays as "arm circles" on og interface
-    if (central.connected()) exercise.writeValue(2); //LateralRaises - displays as "pushups" on og interface
+    //if (central.connected()) exercise.writeValue(0); //ArmCircles - displays as "arm circles" on og interface
+    //if (central.connected()) exercise.writeValue(2); //LateralRaises - displays as "pushups" on og interface
 
     if (EI_CLASSIFIER_RAW_SAMPLES_PER_FRAME != fusion_ix) {
         ei_printf("ERR: Sensors don't match the sensors required in the model\r\n"
@@ -281,6 +281,34 @@ void loop()
     }
 #if EI_CLASSIFIER_HAS_ANOMALY == 1
     ei_printf("    anomaly score: %.3f\r\n", result.anomaly);
+    if(result.anomaly < threshold)
+        {
+            for (size_t ix = 0; ix < EI_CLASSIFIER_LABEL_COUNT; ix++)  
+              {      
+                 ei_printf("    %s: %.5f\n", result.classification[ix].label, result.classification[ix].value);  
+                 if(result.classification[ix].value > confidence )
+                 {
+                     Label = String(result.classification[ix].label);
+                     Serial.println(Label);
+                     if (Label == "ArmCircles")
+                     {
+                       if (central.connected()) exercise.writeValue(0);
+                       Serial.println("Data sent");
+                     }
+                     else if (Label == "LateralRaises")
+                     {
+                        if (central.connected()) exercise.writeValue(1);
+                        Serial.println("Data sent");
+                     }
+                    //  else if (Label == "Pushup")
+                    //  {
+                    //     if (central.connected()) exercise.writeValue(2);
+                    //     Serial.println("Data sent");
+                    //  }
+        
+                  }
+               }
+         }        
 #endif
 }
 
