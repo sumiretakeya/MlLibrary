@@ -220,7 +220,9 @@ void loop()
     }
     delay(2000);
 
-    if (central.connected()) exercise.writeValue(0);
+    if (central.connected()) exercise.writeValue(0); //ArmCircles - displays as "arm circles" on og interface
+    if (central.connected()) exercise.writeValue(2); //LateralRaises - displays as "pushups" on og interface
+
     if (EI_CLASSIFIER_RAW_SAMPLES_PER_FRAME != fusion_ix) {
         ei_printf("ERR: Sensors don't match the sensors required in the model\r\n"
         "Following sensors are required: %s\r\n", EI_CLASSIFIER_FUSION_AXES_STRING);
@@ -281,6 +283,7 @@ void loop()
     ei_printf("    anomaly score: %.3f\r\n", result.anomaly);
 #endif
 }
+
 
 #if !defined(EI_CLASSIFIER_SENSOR) || (EI_CLASSIFIER_SENSOR != EI_CLASSIFIER_SENSOR_FUSION && EI_CLASSIFIER_SENSOR != EI_CLASSIFIER_SENSOR_ACCELEROMETER)
 #error "Invalid model for current sensor"
