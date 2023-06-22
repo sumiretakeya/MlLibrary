@@ -24,7 +24,7 @@
 
 // Global Variables
 
-float threshold = 0.0;
+float threshold = 10;
 float confidence = 0.8;
 bool flag = false;
 String Label;
@@ -190,6 +190,8 @@ if (!BLE.begin()) {
     }
 }
 
+// int counterOne=0;
+// int counterTwo=0;
 /**
 * @brief      Get data and run inferencing
 */
@@ -218,11 +220,28 @@ void loop()
     {
       return;
     }
-    delay(3000);
+
+    // while(counterOne > 0 && counterTwo > 0)
+    // {
+    //   if(counterOne > 0)
+    //   {
+    //     if (central.connected()) exercise.writeValue(0);
+    //     Serial.println("Data sent");
+    //     counterOne -= 1;
+    //   }
+    //   else if(counterTwo > 0)
+    //   {
+    //     if (central.connected()) exercise.writeValue(1);
+    //     Serial.println("Data sent");
+    //     counterTwo -= 1;
+    //   }
+    // }
+
+    delay(2000);
 
     //if (central.connected()) exercise.writeValue(0); //ArmCircles - displays as "arm circles" on og interface
     //if (central.connected()) exercise.writeValue(2); //LateralRaises - displays as "pushups" on og interface
-
+  
     if (EI_CLASSIFIER_RAW_SAMPLES_PER_FRAME != fusion_ix) {
         ei_printf("ERR: Sensors don't match the sensors required in the model\r\n"
         "Following sensors are required: %s\r\n", EI_CLASSIFIER_FUSION_AXES_STRING);
@@ -285,20 +304,25 @@ void loop()
         {
             for (size_t ix = 0; ix < EI_CLASSIFIER_LABEL_COUNT; ix++)  
               {      
-                 ei_printf("    %s: %.5f\n", result.classification[ix].label, result.classification[ix].value);  
+                 ei_printf("    %s: %.5f\n", result.classification[ix].label, result.classification[ix].value); 
+                 //ei_printf("Test");
                  if(result.classification[ix].value > confidence )
                  {
                      Label = String(result.classification[ix].label);
                      Serial.println(Label);
                      if (Label == "ArmCircles")
                      {
+                      //  Serial.println("Counter One Incremented");
+                      //  counterOne += 1;
                        if (central.connected()) exercise.writeValue(0);
                        Serial.println("Data sent");
                      }
                      else if (Label == "LateralRaises")
                      {
-                        if (central.connected()) exercise.writeValue(1);
-                        Serial.println("Data sent");
+                      //  Serial.println("Counter Two Incremented");
+                       //counterTwo += 1;
+                       if (central.connected()) exercise.writeValue(2);
+                       Serial.println("Data sent");
                      }
                     //  else if (Label == "Pushup")
                     //  {
